@@ -1,5 +1,5 @@
 
-This version supports >= PHP 5.5.9. If you have greater PHP 5.6 or greater we suggest you to use https://github.com/idandtrust/goodid-php-sdk instead.
+This version supports >= PHP 5.5.9. If you have PHP 5.6 or greater we suggest you to use https://github.com/idandtrust/goodid-php-sdk instead.
 
 # GoodID SDK for PHP 5.5
 
