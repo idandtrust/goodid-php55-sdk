@@ -1,0 +1,19 @@
+{
+    "name": "goodid/goodid-php55-sdk",
+    "description": "GoodID SDK for PHP",
+    "keywords": ["goodid", "sdk"],
+    "type": "library",
+    "homepage": "https://github.com/idandtrust/goodid-php-sdk",
+    "license": "GoodID Platform",
+    "require": {
+        "php": ">=5.5.9",
+        "ext-openssl": "*",
+        "goodid/goodid-jose-php55": "^1.0",
+        "paragonie/random_compat": "^1|^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "GoodID\\": "src/GoodID/"
+        }
+    }
+}
