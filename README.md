@@ -33,12 +33,11 @@ The GoodID PHP SDK can be installed with [Composer](https://getcomposer.org/). A
     // Take the `$nonce` and `$state` into the frontend
     // by e.g. adding those to your template
     // to be able to easily reach them with javascript
-
     ```
 
 2. When you receive the End User's data from GoodID into your javascript, 
 pass the result of `GoodID.getData()`into your backend 
-by an AJAX request to be able to do the followings:
+by an AJAX request to be able to do the following:
 
     Get all the claims combined from the idToken and userInfo:
 
@@ -47,6 +46,14 @@ by an AJAX request to be able to do the followings:
 
     try {
         $allClaims = $goodId->getClaims($jwsIdToken, $jwsUserInfo, $receivedState);
+
+        // If you want to accept only verified e-mail addresses
+        // (so you have requested it with email_verified:{essential:true})
+        // you have to check that the received e-mail is indeed verified:
+        $userData = $allClaims->get('claims');
+        if (!$userData['email_verified']) {
+            throw new \Exception('The email is not verified, the user can not be logged in!');
+        }
     } catch(GoodID\Exception\GoodIDException $e) {
         echo 'GoodID SDK returned an error: ' . $e->getMessage();
         exit;
@@ -68,6 +75,14 @@ by an AJAX request to be able to do the followings:
 
         if ($idTokenClaims->get('sub') !== $userInfoClaims->get('sub')) {
             throw new GoodID\Exception\GoodIDException('The idToken and userinfo data belong to different users.');
+        }
+
+        // If you want to accept only verified e-mail addresses
+        // (so you have requested it with email_verified:{essential:true})
+        // you have to check that the received e-mail is indeed verified:
+        $userData = $userInfoClaims->get('claims');
+        if (!$userData['email_verified']) {
+            throw new \Exception('The email is not verified, the user can not be logged in!');
         }
     } catch(GoodID\Exception\GoodIDException $e) {
         echo 'GoodID SDK returned an error: ' . $e->getMessage();
