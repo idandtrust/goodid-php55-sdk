@@ -22,12 +22,20 @@
  *
  */
 
-namespace GoodID\Exception;
+namespace GoodID\Helpers\Logic;
 
 /**
- * Class ValidationException
- * Indicates a validation error
+ * VarSource interface
+ *
+ * LogicEvaluator gets its variable values through a VarSource
  */
-class ValidationException extends GoodIDException
+interface VarSource
 {
+    /**
+     * Gets the variable value corresponding to the given variable name
+     *
+     * @param string $varName The variable name in external (dot-separated) format
+     * @return mixed Variable value
+     */
+    public function getValue($varName);
 }
