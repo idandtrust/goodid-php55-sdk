@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/idandtrust/goodid-php-sdk.svg?branch=master)](https://travis-ci.org/idandtrust/goodid-php-sdk)
 
 > **Note:** This version supports >= PHP 5.5.9.
 If you have PHP 5.6 or greater we suggest you to use https://github.com/idandtrust/goodid-php-sdk instead.
@@ -50,13 +51,23 @@ use GoodID\Helpers\Key\RSAPrivateKey;
 use GoodID\Helpers\OpenIDRequestSource\OpenIDRequestObject;
 use GoodID\ServiceLocator;
 
-// You have to start the session before using our SDK
+// -- Option 1 --
+// You can use our default session data handler. 
+// In this case you need to start the session first.
 session_start();
+
+$serviceLocator = new ServiceLocator();
+
+// -- Option 2 --
+// Or you can add your own session data handler
+// by defining a class which implements \GoodID\Helpers\SessionDataHandlerInterface
+// Add that to the $serviceLocator.
+$serviceLocator->setSessionDataHandler(new CustomSessionDataHandler());
 
 try {
     // Simply create and run our object, it will take care of everything
     GoodIDEndpointFactory::createGoodIDEndpoint(
-        new ServiceLocator(),
+        $serviceLocator,
         "YOUR-CLIENT-ID",
         new RSAPrivateKey("YOUR-SIG-PRIV-KEY-PEM-STRING"),
         new RSAPrivateKey("YOUR-ENC-PRIV-KEY-PEM-STRING"),
@@ -84,15 +95,25 @@ use GoodID\Exception\GoodIDException;
 use GoodID\Helpers\Key\RSAPrivateKey;
 use GoodID\ServiceLocator;
 
-// You have to start the session before using our SDK
+// -- Option 1 --
+// You can use our default session data handler. 
+// In this case you need to start the session first.
 session_start();
+
+$serviceLocator = new ServiceLocator();
+
+// -- Option 2 --
+// Or you can add your own session data handler
+// by defining a class which implements \GoodID\Helpers\SessionDataHandlerInterface
+// Add that to the $serviceLocator.
+$serviceLocator->setSessionDataHandler(new CustomSessionDataHandler());
 
 // If there is a "code" parameter, it must be a login attempt
 if (filter_has_var(INPUT_GET, 'code') || filter_has_var(INPUT_GET, 'error')) {
     try {
         // The GoodIDResponse object collects, decrypts and verifies the response data
         $response = new GoodIDResponse(
-            new ServiceLocator(),
+            $serviceLocator,
             "YOUR-CLIENT-ID",
             "YOUR-CLIENT-SECRET",
             new RSAPrivateKey("YOUR-SIG-PRIV-KEY-PEM-STRING"),
