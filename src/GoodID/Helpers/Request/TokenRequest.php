@@ -29,6 +29,7 @@ use GoodID\Helpers\Config;
 use GoodID\Helpers\GoodIDServerConfig;
 use GoodID\Helpers\Http\HttpRequest;
 use GoodID\Helpers\Http\HttpResponse;
+use GoodID\Helpers\UrlSafeBase64Encoder;
 
 /**
  * Objects of this class can make a request to the GoodID Server's Token Endpoint
@@ -79,6 +80,11 @@ class TokenRequest
      * @var string|null
      */
     private $requestUriForValidation;
+
+    /**
+     * @var bool
+     */
+    private $isTotpEnabled;
 
     /**
      * Make a request to the GoodID Server's Token Endpoint
@@ -143,6 +149,7 @@ class TokenRequest
         $this->accessToken = isset($tokenResponseArray['access_token']) ? $tokenResponseArray['access_token'] : null;
         $this->idTokenJwe = $tokenResponseArray['id_token'];
         $this->goodIDServerTime = $tokenResponseArray['server_time'];
+        $this->isTotpEnabled = isset($tokenResponseArray['is_totp_enabled']) ? (bool)$tokenResponseArray['is_totp_enabled'] : false;
     }
 
     /**
@@ -187,6 +194,14 @@ class TokenRequest
     }
 
     /**
+     * @return bool
+     */
+    public function isTotpEnabled()
+    {
+        return $this->isTotpEnabled;
+    }
+
+    /**
      * Send Request
      *
      * @codeCoverageIgnore
@@ -217,7 +232,10 @@ class TokenRequest
             'code' => $authCode,
             'redirect_uri' => $redirectUri,
             'client_id' => $clientId,
-            'sdk_version' => Config::GOODID_PHP_SDK_VERSION
+            'ext' => UrlSafeBase64Encoder::encode(json_encode(array(
+                'sdk_version' => Config::GOODID_PHP_SDK_VERSION,
+                'profile_version' => Config::GOODID_PROFILE_VERSION
+            )))
         ];
 
         if (!is_null($requestUriForValidation)) {

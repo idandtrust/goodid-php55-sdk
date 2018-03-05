@@ -177,7 +177,7 @@ class GoodIDResponse
 
             list($goodEncryptionKey, $idTokenJws) = $this->decryptWithAny($encryptionKeys, $tokenRequest->getIdTokenJwe());
 
-            $idToken = $validator->validateIdToken($idTokenJws, $clientSecret, $tokenRequest->getGoodIDServerTime(), $requestedMaxAge, $authCode);
+            $idToken = $validator->validateIdToken($idTokenJws, $clientSecret, $tokenRequest->getGoodIDServerTime(), $requestedMaxAge, $authCode, $tokenRequest->isTotpEnabled());
 
             if ($tokenRequest->hasAccessToken()) {
                 $accessToken = $tokenRequest->getAccessToken();

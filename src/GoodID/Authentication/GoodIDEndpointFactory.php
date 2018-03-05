@@ -98,7 +98,7 @@ final class GoodIDEndpointFactory
                 $stateNonceHandler,
                 $maxAge
             );
-        } elseif (in_array($requestMethod, ['GET', 'POST']) && in_array($display, ['page', 'popup'])) {
+        } elseif ($requestMethod === 'GET' && in_array($display, ['page', 'popup'])) {
             return new GoodIDRequestBuilderEndpoint(
                 $incomingRequest,
                 $clientId,

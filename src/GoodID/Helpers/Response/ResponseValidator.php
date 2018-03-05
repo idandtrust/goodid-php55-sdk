@@ -162,12 +162,13 @@ class ResponseValidator
      * @param int $goodIDServerTime GoodID Server time as a Unix timestamp
      * @param int|null $requestedMaxAge Requested max age
      * @param string $authCode Authorization code
+     * @param bool $isTotpEnabled
      *
      * @return array Id Token as an array
      *
      * @throws ValidationException on error
      */
-    public function validateIdToken($jwsIdToken, $clientSecret, $goodIDServerTime, $requestedMaxAge, $authCode)
+    public function validateIdToken($jwsIdToken, $clientSecret, $goodIDServerTime, $requestedMaxAge, $authCode, $isTotpEnabled = false)
     {
         $claims = $this->validate($jwsIdToken);
 
@@ -198,21 +199,30 @@ class ResponseValidator
             throw new ValidationException("Invalid authentication time.");
         }
 
-        $isNonceValid = isset($claims[self::CLAIM_NAME_NONCE])
-            && $this->stateNonceHandler->validateNonce(
-                $claims[self::CLAIM_NAME_NONCE],
-                $clientSecret,
-                $goodIDServerTime,
-                $claims[Claim::NAME_ISSUED_AT]
-            );
+        // @TODO: Need to validate if the received ACR value is correct or not.
 
-        if (!$isNonceValid) {
-            throw new ValidationException("The received nonce is invalid.");
-        }
+        $isConvenientTypeOfAuthCode = $this->isConvenientTypeOfAuthCode($authCode);
 
-        if ($this->stateNonceHandler->getNonceValidationMode($claims[self::CLAIM_NAME_NONCE])
-            !== StateNonceHandler::NONCE_VALIDATION_MODE_CONVENIENT_TOTP
-        ) {
+        if (!$isConvenientTypeOfAuthCode) {
+            $isNonceValid = isset($claims[self::CLAIM_NAME_NONCE])
+                && $this->stateNonceHandler->validateNonce(
+                    $claims[self::CLAIM_NAME_NONCE],
+                    $clientSecret,
+                    $goodIDServerTime,
+                    $claims[Claim::NAME_ISSUED_AT]
+                );
+
+            if (!$isNonceValid) {
+                throw new ValidationException("The received nonce is invalid.");
+            }
+
+            if (in_array($this->stateNonceHandler->getNonceValidationMode($claims[self::CLAIM_NAME_NONCE]), array(
+                StateNonceHandler::NONCE_VALIDATION_MODE_CONVENIENT_TOTP,
+                StateNonceHandler::NONCE_VALIDATION_MODE_NORMAL_TOTP
+            )) && !$isTotpEnabled) {
+                throw new ValidationException("TOTP nonce usage is not enabled.");
+            }
+
             $authCodeHash = $this->calculateAuthorizationCodeHash($authCode);
 
             if (!isset($claims[self::CLAIM_NAME_C_HASH])
@@ -228,6 +238,16 @@ class ResponseValidator
         }
 
         return $claims;
+    }
+
+    /**
+     * @param string $authCode
+     * 
+     * @return bool
+     */
+    private function isConvenientTypeOfAuthCode($authCode)
+    {
+        return substr($authCode, 0, 4) === 'oacc';
     }
 
     /**
