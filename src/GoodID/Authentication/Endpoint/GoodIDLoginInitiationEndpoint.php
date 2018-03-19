@@ -109,5 +109,6 @@ class GoodIDLoginInitiationEndpoint extends AbstractGoodIDEndpoint
     public function run()
     {
         header('Location: ' . $this->buildRedirectionURL());
+        exit;
     }
 }
