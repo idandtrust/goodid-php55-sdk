@@ -1,3 +1,5 @@
+[DEPRECATED] 
+
 [![Build Status](https://travis-ci.org/idandtrust/goodid-php-sdk.svg?branch=master)](https://travis-ci.org/idandtrust/goodid-php-sdk)
 
 > **Note:** This version supports >= PHP 5.5.9.
